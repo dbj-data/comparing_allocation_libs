@@ -4,7 +4,9 @@
 #pragma clang system_header
 #endif // __clang__
 
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif // _CRT_SECURE_NO_WARNINGS
 
 #define strncpy strncpy_s
 #define strdup _strdup
