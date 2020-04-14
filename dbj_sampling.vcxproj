@@ -193,6 +193,7 @@
     <ClInclude Include="..\klib\kstring.h" />
     <ClInclude Include="..\klib\ksw.h" />
     <ClInclude Include="..\klib\kvec.h" />
+    <ClInclude Include="dbj--nanolib\nonstd\dbj_timer.h" />
     <ClInclude Include="klib.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

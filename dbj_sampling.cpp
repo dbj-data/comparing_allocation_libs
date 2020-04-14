@@ -11,8 +11,74 @@
 /// https://github.com/attractivechaos/benchmarks
 #define DBJ_ASSERT _ASSERTE
 
-constexpr int test_loop_size = 10, test_array_size = 2000000; // 200K instead of 2 mil
+extern "C" {
 
+	enum{ slab_max_size_ = 100 };
+	typedef struct slab_rezult {
+		char * val;
+	} slab_rezult;
+
+	inline slab_rezult slab(size_t size)
+	{
+		size = size % slab_max_size_ ;
+		slab_rezult buf{
+		 (char*)calloc(size + 1 ,sizeof(char))
+		};
+		memset(buf.val, ' ', size);
+		buf.val[size] = '\0';
+		return buf;
+	}
+}
+
+static void fprint_magic () {
+	auto HASH{ "*********" };
+		int amount = 520;
+		char number[100];
+		sprintf_s(number, 100, "%d.%02d", amount / 100, amount % 100);
+		volatile int magick = (int)(sizeof HASH - 1 - strlen(number));
+		DBJ_PRINT("$%.*s%s",
+			magick,
+			HASH,
+			number );
+	}
+
+TUF_REG(fprint_magic );
+/// ---------------------------------------------------------------------
+constexpr int test_loop_size = 0xF, test_array_size = 2000000; // 200K instead of 2 mil
+/// ---------------------------------------------------------------------
+/// compare kv mem and system mem
+static void compare_kv_mem_and_system_mem() {
+	volatile clock_t time_point_ = clock();
+	DBJ_REPEAT(test_loop_size) {
+		volatile int* array_ = DBJ_ALLOC(int, test_array_size);
+		DBJ_ASSERT(array_);
+		DBJ_FREE((void *)array_);
+	}
+	float rezuldad = (float)(clock() - time_point_) / CLOCKS_PER_SEC;
+	DBJ_PRINT(" ");
+	DBJ_PRINT("k mem alloc/free: %.3f sec,  %.0f dbj's", rezuldad, 1000 * rezuldad );
+	slab_rezult slab_ = slab(1000 * rezuldad);
+	DBJ_PRINT(DBJ_BG_GREEN  "%s" DBJ_RESET, slab_.val);
+	free( slab_.val );
+
+	time_point_ = clock();
+	DBJ_REPEAT(test_loop_size) {
+		volatile int* array_ = (volatile int *)calloc(test_array_size, sizeof(int));
+		DBJ_ASSERT(array_);
+		free((void*)array_);
+	}
+	rezuldad = (float)(clock() - time_point_) / CLOCKS_PER_SEC;
+	DBJ_PRINT(" ");
+	DBJ_PRINT("system mem alloc/free: %.3f sec, %.0f dbj's",rezuldad, 1000 * rezuldad );
+	slab_ = slab( 1000 * rezuldad );
+	DBJ_PRINT(DBJ_BG_GREEN  "%s" DBJ_RESET,slab_.val );
+	DBJ_PRINT(" ");
+	free(slab_.val);
+}
+
+TUF_REG(compare_kv_mem_and_system_mem);
+
+#ifdef COMPARE_KVEC_AND_STD_VEC
 ///-----------------------------------------------
 TU_REGISTER([] {
 	int i{}, j{};
@@ -101,6 +167,8 @@ TU_REGISTER([] {
 		(float)(clock() - t) / CLOCKS_PER_SEC);
 	///-----------------------------------------------
 	});
+
+#endif // COMPARE_KVEC_AND_STD_VEC
 
 int main(int, char**)
 {
