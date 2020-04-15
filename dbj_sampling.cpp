@@ -6,74 +6,110 @@
 #include <assert.h>
 
 #include "dbj--nanolib/dbj++tu.h"
+#include "trivial_pool_allocator_class.h"
 #include "klib.h"
 /// https://godbolt.org/z/fAR6Hd
 /// https://github.com/attractivechaos/benchmarks
 #define DBJ_ASSERT _ASSERTE
 
-extern "C" {
+	struct slab final {
+		constexpr static auto max_size_ = 100 ;
+		mutable size_t size{};
+		char* val{};
 
-	enum{ slab_max_size_ = 100 };
-	typedef struct slab_rezult {
-		char * val;
-	} slab_rezult;
+		slab() = delete;
+		slab(slab const & ) = delete;
+		slab(slab&& other_) noexcept
+			: size(other_.size), val(other_.val)
+		{
+			other_.size = 0 ;
+			other_.val = nullptr;
+		}
 
-	inline slab_rezult slab(size_t size)
-	{
-		size = size % slab_max_size_ ;
-		slab_rezult buf{
-		 (char*)calloc(size + 1 ,sizeof(char))
-		};
-		memset(buf.val, ' ', size);
-		buf.val[size] = '\0';
-		return buf;
-	}
-}
+		~slab() {
+			free(val);
+			val = nullptr;
+		}
+
+		static slab make(float size_arg_, const signed char filler_ = ' ', bool show_ = true)
+		{
+			slab buf{ size_t(size_arg_) % slab::max_size_ };
+			memset(buf.val, filler_, buf.size);
+
+			if (show_)
+				DBJ_PRINT(DBJ_BG_GREEN  "%s" DBJ_RESET, buf.val);
+
+			return buf;
+		}
+	private:
+		explicit slab(size_t s_)
+			: size(size_t(s_)), val((char*)calloc(size + 1, sizeof(char)))
+		{}
+	} ;
 
 static void fprint_magic () {
-	auto HASH{ "*********" };
+	auto MASK{ "*********" };
 		int amount = 520;
-		char number[100];
+		char number[100] = {0};
 		sprintf_s(number, 100, "%d.%02d", amount / 100, amount % 100);
-		volatile int magick = (int)(sizeof HASH - 1 - strlen(number));
-		DBJ_PRINT("$%.*s%s",
-			magick,
-			HASH,
-			number );
+		volatile int magick = (int)(sizeof MASK - 1 - strlen(number));
+		DBJ_PRINT("$%.*s%s", magick, MASK, number );
 	}
 
-TUF_REG(fprint_magic );
+// TUF_REG(fprint_magic );
 /// ---------------------------------------------------------------------
 constexpr int test_loop_size = 0xF, test_array_size = 2000000; // 200K instead of 2 mil
 /// ---------------------------------------------------------------------
 /// compare kv mem and system mem
 static void compare_kv_mem_and_system_mem() {
-	volatile clock_t time_point_ = clock();
-	DBJ_REPEAT(test_loop_size) {
-		volatile int* array_ = DBJ_ALLOC(int, test_array_size);
-		DBJ_ASSERT(array_);
-		DBJ_FREE((void *)array_);
+	{
+		volatile clock_t time_point_ = clock();
+		DBJ_REPEAT(test_loop_size) {
+			volatile int* array_ = DBJ_ALLOC(int, test_array_size);
+			DBJ_ASSERT(array_);
+			DBJ_FREE(array_);
+		}
+		float rezuldad = (float)(clock() - time_point_) / CLOCKS_PER_SEC;
+		DBJ_PRINT(" ");
+		DBJ_PRINT("k mem alloc/free: %.3f sec,  %.0f dbj's", rezuldad, 1000 * rezuldad);
+		slab::make( 1000 * rezuldad );
 	}
-	float rezuldad = (float)(clock() - time_point_) / CLOCKS_PER_SEC;
-	DBJ_PRINT(" ");
-	DBJ_PRINT("k mem alloc/free: %.3f sec,  %.0f dbj's", rezuldad, 1000 * rezuldad );
-	slab_rezult slab_ = slab(1000 * rezuldad);
-	DBJ_PRINT(DBJ_BG_GREEN  "%s" DBJ_RESET, slab_.val);
-	free( slab_.val );
+	// ----------------------------------------------------------
+	// using pool allocator is cheating
+	// it can deliver only fixed size chunks
+	// it is not general purpose allocator
+	{
+		volatile clock_t time_point_ = clock();
+		dbj::nanolib::pool_allocator  tpa(2, test_array_size );
 
-	time_point_ = clock();
-	DBJ_REPEAT(test_loop_size) {
-		volatile int* array_ = (volatile int *)calloc(test_array_size, sizeof(int));
-		DBJ_ASSERT(array_);
-		free((void*)array_);
+		DBJ_PRINT(" ");
+		DBJ_PRINT("pool allocator block chunk count: %d, chunk size: %d", tpa.block_size(), tpa.chunk_size());
+
+		DBJ_REPEAT(test_loop_size) {
+			int* array_ = (int*)tpa.allocate();
+			DBJ_ASSERT(array_);
+			tpa.deallocate((void*)array_);
+		}
+		float rezuldad = (float)(clock() - time_point_) / CLOCKS_PER_SEC;
+		DBJ_PRINT(" ");
+		DBJ_PRINT("pool alloc: %.3f sec, %.0f dbj's", rezuldad, 1000 * rezuldad);
+		slab::make(1000 * rezuldad);
+		DBJ_PRINT(" ");
 	}
-	rezuldad = (float)(clock() - time_point_) / CLOCKS_PER_SEC;
-	DBJ_PRINT(" ");
-	DBJ_PRINT("system mem alloc/free: %.3f sec, %.0f dbj's",rezuldad, 1000 * rezuldad );
-	slab_ = slab( 1000 * rezuldad );
-	DBJ_PRINT(DBJ_BG_GREEN  "%s" DBJ_RESET,slab_.val );
-	DBJ_PRINT(" ");
-	free(slab_.val);
+	// ----------------------------------------------------------
+	{
+		volatile clock_t time_point_ = clock();
+		DBJ_REPEAT(test_loop_size) {
+			volatile int* array_ = (volatile int*)calloc(test_array_size, sizeof(int));
+			DBJ_ASSERT(array_);
+			free((void*)array_);
+		}
+		float rezuldad = (float)(clock() - time_point_) / CLOCKS_PER_SEC;
+		DBJ_PRINT(" ");
+		DBJ_PRINT("system mem alloc/free: %.3f sec, %.0f dbj's", rezuldad, 1000 * rezuldad);
+		slab::make(1000 * rezuldad) ;
+		DBJ_PRINT(" ");
+	}
 }
 
 TUF_REG(compare_kv_mem_and_system_mem);
@@ -172,8 +208,10 @@ TU_REGISTER([] {
 
 int main(int, char**)
 {
+	// wow, this is deep :(
+	dbj::nanolib::logging::config::nanosecond_timestamp();
 	dbj::tu::testing_system::execute();
 	/// exit:
-	km_destroy(k_memory_());
+
 	return 0;
 }

@@ -194,7 +194,9 @@
     <ClInclude Include="..\klib\ksw.h" />
     <ClInclude Include="..\klib\kvec.h" />
     <ClInclude Include="dbj--nanolib\nonstd\dbj_timer.h" />
+    <ClInclude Include="dbj_memaligned.h" />
     <ClInclude Include="klib.h" />
+    <ClInclude Include="trivial_pool_allocator_class.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,16 +13,27 @@
 
 #include "../klib/kalloc.h"
 
-inline void* k_memory_()
-{
-	static void* k_memory_single_ = km_init();
-	return k_memory_single_;
-}
+extern "C" {
+
+	void on_exit_release_kmem_pointer();
+
+	inline void* k_memory_()
+	{
+		static void* k_memory_single_ = km_init();
+		static int rez = atexit(on_exit_release_kmem_pointer);
+		return k_memory_single_;
+	}
+
+	inline void on_exit_release_kmem_pointer() 
+	{
+		km_destroy(k_memory_());
+	}
 
 #define DBJ_ALLOC(T_,CNT_) (T_*)kcalloc( k_memory_(), CNT_, sizeof(T_))
 #define DBJ_REALLOC(P_, S_) krealloc( k_memory_() , P_, S_ )
-#define DBJ_FREE( P_ ) kfree( k_memory_(), P_  )
+#define DBJ_FREE( P_ ) kfree( k_memory_(), (void *)P_  )
 
+} // "C"
 
 #include "../klib/kvec.h"
 
