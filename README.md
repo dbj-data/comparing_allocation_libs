@@ -4,4 +4,4 @@
 
 Quick and perhaps questionable comparison of heap allocation libs
 
-> builds using the `/kernel` cl.exe switch
+> Note: built using the `/kernel` cl.exe switch
