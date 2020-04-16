@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -165,42 +165,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\klib\kalloc.c" />
-    <ClCompile Include="..\klib\keigen.c" />
-    <ClCompile Include="..\klib\kexpr.c" />
-    <ClCompile Include="..\klib\ksa.c" />
-    <ClCompile Include="..\klib\kstring.c" />
-    <ClCompile Include="..\klib\ksw.c" />
     <ClCompile Include="dbj_sampling.cpp" />
     <ClCompile Include="kalloc\kalloc.c" />
     <ClCompile Include="nedmalloc\nedmalloc.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\klib\kalloc.h" />
-    <ClInclude Include="..\klib\kavl.h" />
-    <ClInclude Include="..\klib\kbit.h" />
-    <ClInclude Include="..\klib\kbtree.h" />
-    <ClInclude Include="..\klib\kdq.h" />
-    <ClInclude Include="..\klib\keigen.h" />
-    <ClInclude Include="..\klib\ketopt.h" />
-    <ClInclude Include="..\klib\kexpr.h" />
-    <ClInclude Include="..\klib\kgraph.h" />
-    <ClInclude Include="..\klib\khash.h" />
-    <ClInclude Include="..\klib\khashl.h" />
-    <ClInclude Include="..\klib\klist.h" />
-    <ClInclude Include="..\klib\krmq.h" />
-    <ClInclude Include="..\klib\krng.h" />
-    <ClInclude Include="..\klib\kseq.h" />
-    <ClInclude Include="..\klib\ksort.h" />
-    <ClInclude Include="..\klib\kstring.h" />
-    <ClInclude Include="..\klib\ksw.h" />
-    <ClInclude Include="..\klib\kvec.h" />
     <ClInclude Include="dbj--nanolib\nonstd\dbj_timer.h" />
     <ClInclude Include="dbj_memaligned.h" />
     <ClInclude Include="dbj_nanostring.h" />
     <ClInclude Include="kalloc\kalloc.h" />
     <ClInclude Include="kalloc\kvec.h" />
-    <ClInclude Include="klib.h" />
     <ClInclude Include="kvec_sampling.h" />
     <ClInclude Include="nedmalloc\malloc.c.h" />
     <ClInclude Include="nedmalloc\nedmalloc.h" />

@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define DBJ_ASSERT _ASSERTE
-
 #include "dbj--nanolib/dbj++tu.h"
 #include "shoshnikov_pool_allocator.h"
 #include "dbj_nanostring.h"
