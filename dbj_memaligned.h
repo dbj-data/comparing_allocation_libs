@@ -28,7 +28,7 @@ namespace dbj {
 	}
 
 	/// ----------------------------------------------------------------------
-	constexpr inline bool is_aligned(void *ptr, size_t alignment) {
+	inline bool is_aligned(void *ptr, size_t alignment) {
 		if (((unsigned long long)ptr % alignment) == 0)
 			return true;
 		return false;

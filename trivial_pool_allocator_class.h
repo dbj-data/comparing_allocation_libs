@@ -176,7 +176,6 @@ namespace dbj::nanolib {
 	};
 
 	// -----------------------------------------------------------
-#define TEST_TRIVIAL_POOL_ALLOCATOR_CLASS
 #ifdef TEST_TRIVIAL_POOL_ALLOCATOR_CLASS
 	/**
 	 * The `Object` structure uses custom allocator,
