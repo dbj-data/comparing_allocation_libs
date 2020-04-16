@@ -1,48 +1,25 @@
-#include <vector>
-#include <array>
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include "common.h"
 
-#include "dbj--nanolib/dbj++tu.h"
 #include "shoshnikov_pool_allocator.h"
-#include "klib.h"
 #include "kvec_sampling.h"
 // to be moved out 
 #define DBJ_NANOSTRING_TEST
 #include "dbj_nanostring.h"
 
 /// ---------------------------------------------------------------------
-#undef MEM_ALLOC_COMPARISONS
+#define MEM_ALLOC_COMPARISONS
 /// ---------------------------------------------------------------------
 /// nedmalloc primary purpose is multithreaded applications
 /// it is also notoriously difficult to use in its raw form
 ///
-// #define NEDMALLOC_DEBUG 1
+#define NEDMALLOC_DEBUG 0
 // #define ENABLE_LOGGING 0xffffffff 
 // NEDMALLOC_TESTLOGENTRY
 #define NO_NED_NAMESPACE
 #include "nedmalloc/nedmalloc.h"
 /// ---------------------------------------------------------------------
 constexpr int test_loop_size = 0xF, test_array_size = 2000000; // 200K instead of 2 mil
-/// ---------------------------------------------------------------------
-static inline int randomizer(int max_ = 0xFF, int min_ = 1)
-{
-	static auto _ = [] {
-		srand((unsigned)time(NULL)); return true;
-	}();
 
-	return (rand() % max_ + min_);
-}
-/// ---------------------------------------------------------------------
-static inline auto driver = [](auto prompt_, auto specimen)
-{
-	volatile clock_t time_point_ = clock();
-	specimen();
-	float rez = (float)(clock() - time_point_) / CLOCKS_PER_SEC;
-	DBJ_PRINT("%-20s %.3f sec,  %.0f dbj's", prompt_, rez, 1000 * rez);
-};
 
 /// ---------------------------------------------------------------------
 /// compare memory mechatronics

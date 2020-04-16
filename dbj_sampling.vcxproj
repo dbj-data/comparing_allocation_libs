@@ -175,6 +175,7 @@
     <ClInclude Include="dbj_nanostring.h" />
     <ClInclude Include="kalloc\kalloc.h" />
     <ClInclude Include="kalloc\kvec.h" />
+    <ClInclude Include="common.h" />
     <ClInclude Include="kvec_sampling.h" />
     <ClInclude Include="nedmalloc\malloc.c.h" />
     <ClInclude Include="nedmalloc\nedmalloc.h" />

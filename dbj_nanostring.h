@@ -1,15 +1,8 @@
-#pragma once
 
-#include <assert.h>
-#include <malloc.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#ifndef DBJ_NANO_STRNG_INC
+#define DBJ_NANO_STRNG_INC
 
-// NOTE: NDEBUG is standard !
-#if !defined( _DEBUG ) &&  !defined( DEBUG ) && !defined(NDEBUG) 
-#define NDEBUG
-#endif // !_DEBUG and !DEBUG and NDEBUG
+#include "common.h"
 
 namespace dbj::nanolib {
 	///
@@ -239,3 +232,5 @@ TU_REGISTER(
 );
 
 #endif // DBJ_NANOSTRING_TEST
+
+#endif // !DBJ_NANO_STRNG_INC

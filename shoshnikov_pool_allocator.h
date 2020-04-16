@@ -2,10 +2,6 @@
 #ifndef SHOSHNIKOV_POOL_ALLOCATOR_INC
 #define SHOSHNIKOV_POOL_ALLOCATOR_INC
 
-#ifndef DBJ_TU_INCLUDED
-#include "dbj--nanolib/dbj++tu.h"
-#endif // DBJ_TU_INCLUDED
-
 #include "dbj_memaligned.h"
 
 #include <cstdlib> // aligned_alloc
@@ -183,6 +179,8 @@ namespace dbj::nanolib {
 
 	// -----------------------------------------------------------
 #ifdef TEST_SHOSHNIKOV_POOL_ALLOCATOR_CLASS
+
+#include "dbj--nanolib/dbj++tu.h"
 	/**
 	 * The `Object` structure uses custom allocator,
 	 * size is two `uint64_t`, 16 bytes.
