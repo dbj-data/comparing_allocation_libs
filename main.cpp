@@ -7,10 +7,14 @@
 
 #include "dbj--nanolib/dbj++tu.h"
 #include "shoshnikov_pool_allocator.h"
-// to be moved out -- #include "dbj_nanostring.h"
 #include "klib.h"
 #include "kvec_sampling.h"
+// to be moved out 
+#define DBJ_NANOSTRING_TEST
+#include "dbj_nanostring.h"
 
+/// ---------------------------------------------------------------------
+#undef MEM_ALLOC_COMPARISONS
 /// ---------------------------------------------------------------------
 /// nedmalloc primary purpose is multithreaded applications
 /// it is also notoriously difficult to use in its raw form
@@ -98,7 +102,8 @@ static inline void compare_mem_mechanisms() {
 		}
 	});
 	// ----------------------------------------------------------
-	// currently, I have no clue what are the good values here
+	// currently, I probably have no clue 
+	// what are the good values here
 	nedpool* pool_ = nedcreatepool(2 * test_array_size, 0);
 	driver("NED14 Pool", [&] {
 		DBJ_REPEAT(test_loop_size) {
@@ -131,14 +136,12 @@ static inline void meta_comparator()
 /// ---------------------------------------------------------------------
 /// this form ot TU Function registration works
 /// with clang 9, coming with VS 2019
+#ifdef MEM_ALLOC_COMPARISONS
 TUF_REG(meta_comparator);
+#endif // MEM_ALLOC_COMPARISONS
+
 /// ---------------------------------------------------------------------
 int main(int, char**)
 {
-	// wow, this is deep namespacing :(
-	dbj::nanolib::logging::config::nanosecond_timestamp();
-	dbj::tu::testing_system::execute();
-	/// exit:
-
-	return 0;
+	return dbj::tu::testing_system::execute();
 }

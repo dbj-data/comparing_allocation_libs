@@ -11,13 +11,9 @@
 #include <cstdlib> // aligned_alloc
 
 // NOTE: NDEBUG is standard !
-#ifndef _DEBUG
-#ifndef DEBUG
-#ifndef NDEBUG
+#if !defined( _DEBUG ) &&  !defined( DEBUG ) && !defined(NDEBUG) 
 #define NDEBUG
-#endif // !NDEBUG
-#endif // !DEBUG
-#endif // !_DEBUG
+#endif // !_DEBUG and !DEBUG and NDEBUG
 
 namespace dbj::nanolib {
 	/**
