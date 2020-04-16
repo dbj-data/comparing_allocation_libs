@@ -11,7 +11,7 @@
 #define strncpy strncpy_s
 #define strdup _strdup
 
-#include "../klib/kalloc.h"
+#include "kalloc/kalloc.h"
 
 extern "C" {
 
@@ -35,5 +35,5 @@ extern "C" {
 
 } // "C"
 
-#include "../klib/kvec.h"
+#include "kalloc/kvec.h"
 

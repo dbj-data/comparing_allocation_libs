@@ -172,6 +172,7 @@
     <ClCompile Include="..\klib\kstring.c" />
     <ClCompile Include="..\klib\ksw.c" />
     <ClCompile Include="dbj_sampling.cpp" />
+    <ClCompile Include="kalloc\kalloc.c" />
     <ClCompile Include="nedmalloc\nedmalloc.c" />
   </ItemGroup>
   <ItemGroup>
@@ -197,10 +198,13 @@
     <ClInclude Include="dbj--nanolib\nonstd\dbj_timer.h" />
     <ClInclude Include="dbj_memaligned.h" />
     <ClInclude Include="dbj_nanostring.h" />
+    <ClInclude Include="kalloc\kalloc.h" />
+    <ClInclude Include="kalloc\kvec.h" />
     <ClInclude Include="klib.h" />
+    <ClInclude Include="kvec_sampling.h" />
     <ClInclude Include="nedmalloc\malloc.c.h" />
     <ClInclude Include="nedmalloc\nedmalloc.h" />
-    <ClInclude Include="trivial_pool_allocator_class.h" />
+    <ClInclude Include="shoshnikov_pool_allocator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
