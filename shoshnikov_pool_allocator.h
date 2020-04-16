@@ -1,4 +1,6 @@
 #pragma once
+#ifndef SHOSHNIKOV_POOL_ALLOCATOR_INC
+#define SHOSHNIKOV_POOL_ALLOCATOR_INC
 
 #ifndef DBJ_TU_INCLUDED
 #include "dbj--nanolib/dbj++tu.h"
@@ -8,7 +10,15 @@
 
 #include <cstdlib> // aligned_alloc
 
-/// note: trivial is not pejorative attribute
+// NOTE: NDEBUG is standard !
+#ifndef _DEBUG
+#ifndef DEBUG
+#ifndef NDEBUG
+#define NDEBUG
+#endif // !NDEBUG
+#endif // !DEBUG
+#endif // !_DEBUG
+
 namespace dbj::nanolib {
 	/**
 	 * Pool-allocator.
@@ -24,9 +34,7 @@ namespace dbj::nanolib {
 	 *
 	 * by Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
 	 * MIT Style License, 2019
-	 */
 
-	 /**
 	  * The allocator class.
 	  *
 	  * Features:
@@ -44,6 +52,7 @@ namespace dbj::nanolib {
 
 	   /**
 		* A chunk within a larger block.
+		  DBJ moved inside pool_allocator
 		*/
 		struct Chunk {
 			/**
@@ -57,13 +66,16 @@ namespace dbj::nanolib {
 		};
 
 		explicit pool_allocator(size_t chunksPerBlock, size_t chunk_size_arg ) 
+			noexcept
 			: chunks_per_block_(chunksPerBlock)
 			, chunk_size_(dbj::align(chunk_size_arg))
 		{
 			_ASSERTE(chunk_size_ > sizeof(Chunk) );
 		}
 
+		/// DBJ removed default ctor
 		pool_allocator() = delete;
+		/// DBJ made no copy no move
 		pool_allocator(pool_allocator const&) = delete;
 		pool_allocator(pool_allocator&&) = delete;
 
@@ -81,22 +93,20 @@ namespace dbj::nanolib {
 
 			// No chunks left in the current block, or no any block
 			// exists yet. Allocate a new one, passing the chunk size:
-
-			if (mAlloc == nullptr) {
-				mAlloc = allocateBlock(this->chunk_size_);
+			if (next_free_chunk_ == nullptr) {
+				next_free_chunk_ = allocateBlock(this->chunk_size_, this->chunks_per_block_ );
 			}
 
 			// The return value is the current position of
 			// the allocation pointer:
 
-			Chunk* freeChunk = mAlloc;
+			Chunk* freeChunk = next_free_chunk_;
 
 			// Advance (bump) the allocation pointer to the next chunk.
 			//
-			// When no chunks left, the `mAlloc` will be set to `nullptr`, and
+			// When no chunks left, the `next_free_chunk_` will be set to `nullptr`, and
 			// this will cause allocation of a new block on the next request:
-
-			mAlloc = mAlloc->next;
+			next_free_chunk_ = next_free_chunk_->next;
 
 			return freeChunk;
 		}
@@ -109,12 +119,12 @@ namespace dbj::nanolib {
 			// The freed chunk's next pointer points to the
 			// current allocation pointer:
 
-			reinterpret_cast<Chunk*>(chunk)->next = mAlloc;
+			reinterpret_cast<Chunk*>(chunk)->next = next_free_chunk_;
 
 			// And the allocation pointer is moved backwards, and
 			// is set to the returned (now free) chunk:
 
-			mAlloc = reinterpret_cast<Chunk*>(chunk);
+			next_free_chunk_ = reinterpret_cast<Chunk*>(chunk);
 		}
 
 		const size_t block_size() const noexcept {
@@ -136,35 +146,35 @@ namespace dbj::nanolib {
 		/**
 		 * Allocation pointer.
 		 */
-		Chunk* mAlloc = nullptr;
+		Chunk* next_free_chunk_ = nullptr;
 
 		/**
 		 * Allocates a new block from OS.
 		 *
 		 * Returns a Chunk pointer set to the beginning of the block.
 		 */
-		Chunk* allocateBlock(size_t chunkSize) {
+
+		static Chunk* allocateBlock(size_t chunk_size_arg_ , size_t chunks_per_block_arg_ ) {
 
 			// The first chunk of the new block.
 			// Chunk* blockBegin = reinterpret_cast<Chunk*>(malloc(blockSize));
-
-			Chunk* blockBegin = reinterpret_cast<Chunk*>(calloc(chunks_per_block_, chunkSize));
+			Chunk* blockBegin = static_cast<Chunk*>(calloc(chunks_per_block_arg_, chunk_size_arg_));
 
 			_ASSERTE(blockBegin);
-
+#ifdef NDEBUG
 			if (nullptr == blockBegin) {
 				perror("\n\n" __FILE__ "\n\ncalloc() failed");
 				exit( errno );
 			}
+#endif
 
 			// Once the block is allocated, we need to chain all
 			// the chunks in this block:
-
 			Chunk* chunk = blockBegin;
 
-			for (int i = 0; i < chunks_per_block_ - 1; ++i) {
+			for (int i = 0; i < chunks_per_block_arg_ - 1; ++i) {
 				chunk->next =
-					reinterpret_cast<Chunk*>(reinterpret_cast<char*>(chunk) + chunkSize);
+					reinterpret_cast<Chunk*>(reinterpret_cast<char*>(chunk) + chunk_size_arg_);
 				chunk = chunk->next;
 			}
 
@@ -176,7 +186,7 @@ namespace dbj::nanolib {
 	};
 
 	// -----------------------------------------------------------
-#ifdef TEST_TRIVIAL_POOL_ALLOCATOR_CLASS
+#ifdef TEST_SHOSHNIKOV_POOL_ALLOCATOR_CLASS
 	/**
 	 * The `Object` structure uses custom allocator,
 	 * size is two `uint64_t`, 16 bytes.
@@ -250,34 +260,8 @@ namespace dbj::nanolib {
 
 	TUF_REG(testing_allocator_class);
 
-#endif // TEST_TRIVIAL_POOL_ALLOCATOR_CLASS
+#endif // TEST_SHOSHNIKOV_POOL_ALLOCATOR_CLASS
 
 } // dbj::nanolib
 
-
-/*
-size(Object) = 16
-Allocating block (8 chunks):
-new [0] = 0x7ff85e4029e0
-new [1] = 0x7ff85e4029f0
-new [2] = 0x7ff85e402a00
-new [3] = 0x7ff85e402a10
-new [4] = 0x7ff85e402a20
-new [5] = 0x7ff85e402a30
-new [6] = 0x7ff85e402a40
-new [7] = 0x7ff85e402a50
-Allocating block (8 chunks):
-new [8] = 0x7ff85e402a60
-new [9] = 0x7ff85e402a70
-delete [0] = 0x7ff85e4029e0
-delete [1] = 0x7ff85e4029f0
-delete [2] = 0x7ff85e402a00
-delete [3] = 0x7ff85e402a10
-delete [4] = 0x7ff85e402a20
-delete [5] = 0x7ff85e402a30
-delete [6] = 0x7ff85e402a40
-delete [7] = 0x7ff85e402a50
-delete [8] = 0x7ff85e402a60
-delete [9] = 0x7ff85e402a70
-new [0] = 0x7ff85e402a70
-*/
+#endif // SHOSHNIKOV_POOL_ALLOCATOR_INC

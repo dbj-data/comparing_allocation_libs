@@ -165,7 +165,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="dbj_sampling.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="kalloc\kalloc.c" />
     <ClCompile Include="nedmalloc\nedmalloc.c" />
   </ItemGroup>

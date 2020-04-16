@@ -7,12 +7,12 @@
 
 #include "dbj--nanolib/dbj++tu.h"
 #include "shoshnikov_pool_allocator.h"
-#include "dbj_nanostring.h"
+// to be moved out -- #include "dbj_nanostring.h"
 #include "klib.h"
 #include "kvec_sampling.h"
 
 /// ---------------------------------------------------------------------
-/// nemalloc primary purpose is multithreaded applications
+/// nedmalloc primary purpose is multithreaded applications
 /// it is also notoriously difficult to use in its raw form
 ///
 // #define NEDMALLOC_DEBUG 1
