@@ -2,7 +2,6 @@
 #ifndef SHOSHNIKOV_POOL_ALLOCATOR_INC
 #define SHOSHNIKOV_POOL_ALLOCATOR_INC
 
-#include "../dbj_memaligned.h"
 #define POOL_ALLOC_INSTRUMENTATION 1
 
 // DBJ added
@@ -47,7 +46,15 @@ namespace dbj::nanolib {
 	  */
 	struct pool_allocator final {
 
-		friend struct pool_alloc_instrument;
+		using word_t = intptr_t;
+		/**
+ * Aligns the size by the machine word.
+ http://dmitrysoshnikov.com/compilers/writing-a-memory-allocator/#memory-alignment
+ */
+		constexpr inline size_t align(size_t n) {
+			return (n + sizeof(word_t) - 1) & ~(sizeof(word_t) - 1);
+		}
+
 
 		// DBJ added sanity constants
 		constexpr static auto max_number_of_blocks{ 0xFF };
@@ -83,7 +90,7 @@ namespace dbj::nanolib {
 		explicit pool_allocator(size_t chunksPerBlock, size_t chunk_size_arg)
 			noexcept
 			: chunks_per_block_(chunksPerBlock)
-			, chunk_size_(dbj::align(chunk_size_arg))
+			, chunk_size_(align(chunk_size_arg))
 		{
 			_ASSERTE(chunk_size_ > sizeof(Chunk));
 

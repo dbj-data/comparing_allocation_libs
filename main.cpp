@@ -1,10 +1,4 @@
 #include "common.h"
-//
-// #include "pool_allocator/pool_allocator_sampling.h"
-// #include "kvec_sampling.h"
-// to be moved out 
-// #define DBJ_NANOSTRING_TEST
-// #include "dbj_nanostring.h"
 
 /// ---------------------------------------------------------------------
 #define MEM_ALLOC_COMPARISONS
@@ -108,7 +102,7 @@ static inline void meta_comparator()
 	/// repeat the test N times
 	/// so far no big differences
 	DBJ_REPEAT(0xF) {
-		DBJ_PRINT(DBJ_FG_RED "%*d  " DBJ_RESET, 40, dbj_repeat_counter_);
+		DBJ_PRINT(DBJ_FG_RED "%*d  " DBJ_RESET, 40, 1 + dbj_repeat_counter_);
 		compare_mem_mechanisms();
 	}
 }
