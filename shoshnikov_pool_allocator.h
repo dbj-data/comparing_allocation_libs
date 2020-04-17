@@ -110,7 +110,6 @@ namespace dbj::nanolib {
 
 			// The freed chunk's next pointer points to the
 			// current allocation pointer:
-
 			reinterpret_cast<Chunk*>(chunk)->next = next_free_chunk_;
 
 			// And the allocation pointer is moved backwards, and
@@ -130,10 +129,13 @@ namespace dbj::nanolib {
 	private:
 		/**
 		 * Number of chunks per larger block.
+		 DBJ made it const
 		 */
-		size_t chunks_per_block_{};
-
-		size_t chunk_size_{};
+		const size_t chunks_per_block_{};
+		/*
+		DBJ added 
+		*/
+		const size_t chunk_size_{};
 
 		/**
 		 * Allocation pointer.
@@ -144,14 +146,18 @@ namespace dbj::nanolib {
 		 * Allocates a new block from OS.
 		 *
 		 * Returns a Chunk pointer set to the beginning of the block.
+
+		 DBJ made it static
 		 */
 
 		static Chunk* allocateBlock(size_t chunk_size_arg_ , size_t chunks_per_block_arg_ ) {
 
 			// The first chunk of the new block.
 			// Chunk* blockBegin = reinterpret_cast<Chunk*>(malloc(blockSize));
+			// DBJ changed it as below
 			Chunk* blockBegin = static_cast<Chunk*>(calloc(chunks_per_block_arg_, chunk_size_arg_));
 
+			// DBJ added no mem check
 			_ASSERTE(blockBegin);
 #ifdef NDEBUG
 			if (nullptr == blockBegin) {
@@ -207,6 +213,10 @@ namespace dbj::nanolib {
 		 * overloading `new`, and `delete` operators.
 		 */
 		static void* operator new(size_t size) {
+			return allocator().allocate();
+		}
+		// DBJ added
+		static void* operator new [] (size_t count) {
 			return allocator().allocate();
 		}
 
