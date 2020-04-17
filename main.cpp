@@ -3,11 +3,11 @@
 #include "shoshnikov_pool_allocator.h"
 #include "kvec_sampling.h"
 // to be moved out 
-#define DBJ_NANOSTRING_TEST
+// #define DBJ_NANOSTRING_TEST
 #include "dbj_nanostring.h"
 
 /// ---------------------------------------------------------------------
-#define MEM_ALLOC_COMPARISONS
+// #define MEM_ALLOC_COMPARISONS
 /// ---------------------------------------------------------------------
 /// nedmalloc primary purpose is multithreaded applications
 /// it is also notoriously difficult to use in its raw form
