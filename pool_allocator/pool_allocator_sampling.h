@@ -40,7 +40,7 @@ namespace dbj_sampling {
 			return alokator;
 		}
 
-		static void report( FILE * fp_ = stdout )
+		static void report(FILE* fp_ = stdout)
 		{
 			pool_alloc_instrument::report(fp_, Object::allocator());
 		}
@@ -120,10 +120,13 @@ namespace dbj_sampling {
 		delete objects[0];
 		DBJ_PRINT("Deleted last object. We should have two free blocks.");
 		Object::report();
+		});
 
-		return; // need to sort out the array allocation
+	/// -------------------------------------------------
+	TU_REGISTER([] {
+		// make sure more than one block will be made
+		constexpr int arraySize = Object::alokator_block_size + 1;
 
-		/// -------------------------------------------------
 		/// Test array of objects allocation
 		Object* oarr = new Object[arraySize];
 		DBJ_PRINT("Allocated array Object[%d]", arraySize);
@@ -157,10 +160,10 @@ namespace dbj_sampling {
 		Object::report();
 		});
 
-		TU_REGISTER([] {
+	TU_REGISTER([] {
 
-			// allocator block size is 3 for Object
-			Object* a, * b, * c, * d;
+		// allocator block size is 3 for Object
+		Object* a, * b, * c, * d;
 		a = new Object;
 		b = new Object;
 		c = new Object;

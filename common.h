@@ -76,7 +76,8 @@ static inline auto driver = [](auto prompt_, auto specimen)
 	float rez = (float)(clock() - time_point_) / CLOCKS_PER_SEC;
 	DBJ_PRINT("%-20s %.3f sec,  %.0f dbj's", prompt_, rez, 1000 * rez);
 };
-
+/// ---------------------------------------------------------------------
+#include "pool_allocator/pool_allocator_sampling.h"
 #endif // __cplusplus
 
 #endif // !COMMON_INC

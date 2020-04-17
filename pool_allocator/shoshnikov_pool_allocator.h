@@ -46,6 +46,8 @@ namespace dbj::nanolib {
 	  */
 	struct pool_allocator final {
 
+		friend struct pool_alloc_instrument;
+
 		using word_t = intptr_t;
 		/**
  * Aligns the size by the machine word.
