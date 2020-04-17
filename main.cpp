@@ -1,6 +1,7 @@
 #include "common.h"
-
-#include "shoshnikov_pool_allocator.h"
+//
+#include "pool_allocator/pool_allocator_sampling.h"
+//
 #include "kvec_sampling.h"
 // to be moved out 
 // #define DBJ_NANOSTRING_TEST

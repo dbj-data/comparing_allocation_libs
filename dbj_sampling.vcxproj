@@ -179,7 +179,9 @@
     <ClInclude Include="kvec_sampling.h" />
     <ClInclude Include="nedmalloc\malloc.c.h" />
     <ClInclude Include="nedmalloc\nedmalloc.h" />
-    <ClInclude Include="shoshnikov_pool_allocator.h" />
+    <ClInclude Include="pool_allocator\pool_allocator_instrumentation.h" />
+    <ClInclude Include="pool_allocator\pool_allocator_sampling.h" />
+    <ClInclude Include="pool_allocator\shoshnikov_pool_allocator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
