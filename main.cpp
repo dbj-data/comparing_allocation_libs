@@ -9,15 +9,13 @@
 /// nedmalloc primary purpose is multithreaded applications
 /// it is also notoriously difficult to use in its raw form
 ///
-#define NEDMALLOC_DEBUG 0
-// #define ENABLE_LOGGING 0xffffffff 
-// NEDMALLOC_TESTLOGENTRY
+#define  NEDMALLOC_DEBUG 0
+#undef   ENABLE_LOGGING  /* 0xffffffff  */
+#define  NEDMALLOC_TESTLOGENTRY 0
 #define NO_NED_NAMESPACE
 #include "nedmalloc/nedmalloc.h"
 /// ---------------------------------------------------------------------
 constexpr int test_loop_size = 0xF, test_array_size = 2000000; // 200K instead of 2 mil
-
-
 /// ---------------------------------------------------------------------
 /// compare memory mechatronics
 static inline void compare_mem_mechanisms() {
@@ -38,11 +36,11 @@ static inline void compare_mem_mechanisms() {
 	// using pool allocator is cheating :)
 	// it can deliver only fixed size chunks
 	// it is not general purpose allocator
-	dbj::nanolib::pool_allocator  tpa(2, test_array_size);
+	dbj::nanolib::PoolAllocator  tpa( 4 /* chunks per block */);
 
 	driver("Shoshnikov", [&] {
 		DBJ_REPEAT(test_loop_size) {
-			int* array_ = (int*)tpa.allocate();
+			int* array_ = (int*)tpa.allocate(test_array_size);
 			DBJ_ASSERT(array_);
 			// do something so it is not opimized away
 			DBJ_REPEAT(test_array_size / 4) {
@@ -101,7 +99,7 @@ static inline void meta_comparator()
 {
 	/// repeat the test N times
 	/// so far no big differences
-	DBJ_REPEAT(0xF) {
+	DBJ_REPEAT(3) {
 		DBJ_PRINT(DBJ_FG_RED "%*d  " DBJ_RESET, 40, 1 + dbj_repeat_counter_);
 		compare_mem_mechanisms();
 	}

@@ -1742,7 +1742,8 @@ static FORCEINLINE void* win32mmap(size_t size) {
 #endif
     if (!ptr) ptr = VirtualAlloc(baseaddress, size, baseaddress ? MEM_COMMIT : MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
 #ifdef DEFAULT_GRANULARITY_ALIGNED
-#if DEBUG
+/// DBJ REMOVED --> #if DEBUG
+#if 0
     if (lastWin32mmap && ptr!=lastWin32mmap) printf("Non-contiguous VirtualAlloc between %p and %p\n", ptr, lastWin32mmap);
 #endif
     if (ptr) lastWin32mmap = (void*)((size_t) ptr + mparams.granularity);

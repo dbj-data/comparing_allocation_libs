@@ -1041,7 +1041,9 @@ static void DoStackWalk(logentry *p) THROWSPEC
 #endif
 static FORCEINLINE logentry *LogOperation(threadcache *tc, nedpool *np, LogEntryType type, int mspace, size_t size, void *mem, size_t alignment, unsigned flags, void *returned) THROWSPEC
 {
-#if ENABLE_LOGGING
+	/// DBJ added
+#if 0
+// #if ENABLE_LOGGING
 	if(tc->logentries && NEDMALLOC_TESTLOGENTRY(tc, np, type, mspace, size, mem, alignment, flags, returned))
 	{
 		logentry *le;
@@ -1836,7 +1838,8 @@ void nedtrimthreadcache(nedpool *p, int disable) THROWSPEC
 	else if(mycache>0)
 	{	/* Set to last used mspace */
 		threadcache *tc=p->caches[mycache-1];
-#if defined(DEBUG)
+// DBJ changed to 0, it was DEBUG
+#if 0
 		printf("Threadcache utilisation: %lf%% in cache with %lf%% lost to other threads\n",
 			100.0*tc->successes/tc->mallocs, 100.0*((double) tc->mallocs-tc->frees)/tc->mallocs);
 #endif
@@ -1952,7 +1955,7 @@ NEDMALLOCNOALIASATTR NEDMALLOCPTRATTR void * nedpmalloc2(nedpool *p, size_t size
 		{
 			if((flags & M2_ZERO_MEMORY))
 				memset(ret, 0, size);
-			LogOperation(tc, p, LOGENTRY_THREADCACHE_MALLOC, mymspace, size, 0, alignment, flags, ret);
+			/// DBJ REMOVED --> LogOperation(tc, p, LOGENTRY_THREADCACHE_MALLOC, mymspace, size, 0, alignment, flags, ret);
 		}
 	}
 #endif
@@ -1960,10 +1963,9 @@ NEDMALLOCNOALIASATTR NEDMALLOCPTRATTR void * nedpmalloc2(nedpool *p, size_t size
 	{	/* Use this thread's mspace */
         GETMSPACE(m, p, tc, mymspace, size,
                   ret=CallMalloc(m, size, alignment, flags));
-		if(ret)
-			LogOperation(tc, p, LOGENTRY_POOL_MALLOC, mymspace, size, 0, alignment, flags, ret);
+		/// DBJ REMOVED --> if(ret) 	LogOperation(tc, p, LOGENTRY_POOL_MALLOC, mymspace, size, 0, alignment, flags, ret);
 	}
-	LogOperation(tc, p, LOGENTRY_MALLOC, mymspace, size, 0, alignment, flags, ret);
+	/// DBJ REMOVED --> LogOperation(tc, p, LOGENTRY_MALLOC, mymspace, size, 0, alignment, flags, ret);
 	return ret;
 }
 NEDMALLOCNOALIASATTR NEDMALLOCPTRATTR void * nedprealloc2(nedpool *p, void *mem, size_t size, size_t alignment, unsigned flags) THROWSPEC
@@ -2062,7 +2064,7 @@ NEDMALLOCNOALIASATTR void   nedpfree2(nedpool *p, void *mem, unsigned flags) THR
 		CallFree(0, mem, isforeign);
 		LogOperation(tc, p, LOGENTRY_POOL_FREE, mymspace, memsize, mem, 0, 0, 0);
 	}
-	LogOperation(tc, p, LOGENTRY_FREE, mymspace, memsize, mem, 0, 0, 0);
+	/// DBJ REMOVED -> LogOperation(tc, p, LOGENTRY_FREE, mymspace, memsize, mem, 0, 0, 0);
 }
 NEDMALLOCNOALIASATTR NEDMALLOCPTRATTR void * nedpmalloc(nedpool *p, size_t size) THROWSPEC
 {

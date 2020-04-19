@@ -62,6 +62,7 @@ extern "C" {
 /// ---------------------------------------------------------------------
 static inline int randomizer(int max_ = 0xFF, int min_ = 1)
 {
+	/// once
 	static auto _ = [] {
 		srand((unsigned)time(NULL)); return true;
 	}();
@@ -74,10 +75,9 @@ static inline auto driver = [](auto prompt_, auto specimen)
 	volatile clock_t time_point_ = clock();
 	specimen();
 	float rez = (float)(clock() - time_point_) / CLOCKS_PER_SEC;
-	DBJ_PRINT("%-20s %.3f sec,  %.0f dbj's", prompt_, rez, 1000 * rez);
+	DBJ_PRINT("%-20s %.3f sec", prompt_, rez);
 };
 /// ---------------------------------------------------------------------
-#include "pool_allocator/pool_allocator_sampling.h"
 #endif // __cplusplus
 
 #endif // !COMMON_INC

@@ -171,8 +171,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dbj--nanolib\nonstd\dbj_timer.h" />
-    <ClInclude Include="dbj\dbj_memaligned.h" />
-    <ClInclude Include="dbj\dbj_nanostring.h" />
     <ClInclude Include="kalloc\kalloc.h" />
     <ClInclude Include="kalloc\kvec.h" />
     <ClInclude Include="common.h" />
