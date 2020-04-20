@@ -22,6 +22,9 @@
 #include <stdio.h>
 #include <string.h>
 /// ---------------------------------------------------------------------
+
+#define DBJ_KMEM_SAMPLING
+#ifdef DBJ_KMEM_SAMPLING
 #include "kalloc/kalloc.h"
 
 extern "C" {
@@ -48,6 +51,7 @@ extern "C" {
 
 /// ---------------------------------------------------------------------
 #include "kalloc/kvec.h"
+#endif // DBJ_KMEM_SAMPLING
 /// ---------------------------------------------------------------------
 
 #ifdef __cplusplus
@@ -70,7 +74,7 @@ static inline int randomizer(int max_ = 0xFF, int min_ = 1)
 	return (rand() % max_ + min_);
 }
 /// ---------------------------------------------------------------------
-static inline auto driver = [](auto prompt_, auto specimen)
+inline auto driver = [](auto prompt_, auto specimen)
 {
 	volatile clock_t time_point_ = clock();
 	specimen();
