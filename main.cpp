@@ -8,6 +8,7 @@
 #include "nvwa/static_mem_pool.h"
 
 #include "pool_allocator/shoshnikov_pool_allocator.h"
+#include "dbj_pool_allocator/dbj_shoshnikov_pool_allocator.h"
 /// ---------------------------------------------------------------------
 /// nedmalloc primary purpose is multithreaded applications
 /// it is also notoriously difficult to use in its raw form
@@ -19,7 +20,7 @@
 #include "nedmalloc/nedmalloc.h"
 
 /// ---------------------------------------------------------------------
-constexpr int test_loop_size = 2, test_array_size = 30 * 100000;
+constexpr int test_loop_size = 2, test_array_size = 40 * 100000;
 /// ---------------------------------------------------------------------
 /// compare memory mechatronics
 static void compare_mem_mechanisms() {
@@ -73,6 +74,18 @@ static void compare_mem_mechanisms() {
 		meta_driver("Shoshnikov",
 			[&](size_t sze_) { return  (int*)tpa.allocate(test_array_size); },
 			[&](int* array_) { tpa.deallocate((void*)array_); }
+		);
+	}
+	// ----------------------------------------------------------
+	{
+		static dbj::nanolib::dbj_pool_allocator  dbj_pool( 
+			dbj::nanolib::legal_block_size::_4 
+			, test_array_size
+		);
+
+		meta_driver("DBJ*Shoshnikov",
+			[&](size_t sze_) { return  (int*)dbj_pool.allocate(); },
+			[&](int* array_) { dbj_pool.deallocate((void*)array_); }
 		);
 	}
 	// ----------------------------------------------------------

@@ -169,6 +169,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dbj--nanolib\nonstd\dbj_timer.h" />
+    <ClInclude Include="dbj_pool_allocator\dbj_shoshnikov_pool_allocator.h" />
+    <ClInclude Include="dbj_pool_allocator\pool_allocator_instrumentation.h" />
+    <ClInclude Include="dbj_pool_allocator\pool_allocator_sampling.h" />
     <ClInclude Include="kalloc\kalloc.h" />
     <ClInclude Include="kalloc\kvec.h" />
     <ClInclude Include="common.h" />
