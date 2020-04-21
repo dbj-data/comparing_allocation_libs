@@ -9,6 +9,7 @@
 
 #include "pool_allocator/shoshnikov_pool_allocator.h"
 #include "dbj_pool_allocator/dbj_shoshnikov_pool_allocator.h"
+#include "dbj_pool_allocator/pool_allocator_sampling.h"
 /// ---------------------------------------------------------------------
 /// nedmalloc primary purpose is multithreaded applications
 /// it is also notoriously difficult to use in its raw form
