@@ -4,6 +4,9 @@
 #define MEM_ALLOC_COMPARISONS
 #ifdef MEM_ALLOC_COMPARISONS
 
+#include "nvwa/fixed_mem_pool.h"
+#include "nvwa/static_mem_pool.h"
+
 #include "pool_allocator/shoshnikov_pool_allocator.h"
 /// ---------------------------------------------------------------------
 /// nedmalloc primary purpose is multithreaded applications
@@ -14,71 +17,80 @@
 #define  NEDMALLOC_TESTLOGENTRY 0
 #define NO_NED_NAMESPACE
 #include "nedmalloc/nedmalloc.h"
+
 /// ---------------------------------------------------------------------
-constexpr int test_loop_size = 0xF, test_array_size = 1000 * 0xFF ; 
+constexpr int test_loop_size = 2, test_array_size = 30 * 100000;
 /// ---------------------------------------------------------------------
 /// compare memory mechatronics
 static void compare_mem_mechanisms() {
 
-	// ----------------------------------------------------------
-#ifdef DBJ_KMEM_SAMPLING
-	driver("kmem", [&] {
-		DBJ_REPEAT(test_loop_size) {
-			volatile int* array_ = DBJ_ALLOC(int, test_array_size);
-			DBJ_ASSERT(array_);
-			// do something so it is not opimized away
-			DBJ_REPEAT(test_array_size / 4) {
-				array_[dbj_repeat_counter_] = randomizer();
-			}
-			DBJ_FREE(array_);
-		}
-		});
-#endif // DBJ_KMEM_SAMPLING
-	// ----------------------------------------------------------
-	{
-		// using pool allocator is cheating :)
-		// it can deliver only fixed size chunks
-		// it is not general purpose allocator
-
-		driver("Shoshnikov", [&] {
-
-			static dbj::nanolib::PoolAllocator  tpa(64 /* chunks per block */);
-
+	auto meta_driver = [&](const char* tag_, auto aloka, auto dealoka) {
+		driver(tag_, [&] {
 			DBJ_REPEAT(test_loop_size) {
-				int* array_ = (int*)tpa.allocate(test_array_size);
+				int* array_ = aloka(test_array_size);
 				DBJ_ASSERT(array_);
-				// do something so it is not opimized away
 				DBJ_REPEAT(test_array_size / 4) {
 					array_[dbj_repeat_counter_] = randomizer();
 				}
-				tpa.deallocate((void*)array_);
+				dealoka(array_);
 			}
-			});
+		});
+	};
+
+	// ----------------------------------------------------------
+#ifdef DBJ_KMEM_SAMPLING
+	meta_driver("kmem",
+		[&](size_t sze_) { return DBJ_ALLOC(int, test_array_size); },
+		[&](int* array_) { DBJ_FREE(array_); }
+	);
+#endif // DBJ_KMEM_SAMPLING
+	// ----------------------------------------------------------
+	{
+		using nvwa_pool = nvwa::static_mem_pool<test_array_size>;
+
+		meta_driver("NVWA Static",
+			[&](size_t sze_) { return (int*)nvwa_pool::instance_known().allocate(); },
+			[&](int* array_) { nvwa_pool::instance_known().deallocate(array_); }
+		);
 	}
 	// ----------------------------------------------------------
-	driver("system", [&] {
-		DBJ_REPEAT(test_loop_size) {
-			volatile int* array_ = (volatile int*)calloc(test_array_size, sizeof(int));
-			DBJ_ASSERT(array_);
-			// do something so it is not opimized away
-			DBJ_REPEAT(test_array_size / 4) {
-				array_[dbj_repeat_counter_] = randomizer();
-			}
-			free((void*)array_);
-		}
-		});
+	{
+		using nvwa_pool = nvwa::fixed_mem_pool<int>;
+		static nvwa_pool  nvwa;
+		nvwa_pool::initialize(test_array_size);
+		_ASSERTE(true == nvwa.is_initialized());
+
+		meta_driver("NVWA",
+			[&](size_t sze_) { return (int*)nvwa.allocate(); },
+			[&](int* array_) { nvwa.deallocate(array_); }
+		);
+		nvwa_pool::deinitialize();
+	}
 	// ----------------------------------------------------------
-	driver("NED14", [&] {
-		DBJ_REPEAT(test_loop_size) {
-			volatile int* array_ = (volatile int*)::nedcalloc(test_array_size, sizeof(int));
-			DBJ_ASSERT(array_);
-			// do something so it is not opimized away
-			DBJ_REPEAT(test_array_size / 4) {
-				array_[dbj_repeat_counter_] = randomizer();
-			}
-			::nedfree((void*)array_);
-		}
-		});
+	{
+		static dbj::nanolib::PoolAllocator  tpa(64 /* chunks per block */);
+
+		meta_driver("Shoshnikov",
+			[&](size_t sze_) { return  (int*)tpa.allocate(test_array_size); },
+			[&](int* array_) { tpa.deallocate((void*)array_); }
+		);
+	}
+	// ----------------------------------------------------------
+	meta_driver("HeapAlloc / HeapFree",
+		[&](size_t sze_) { return DBJ_NANO_ALLOC(int, test_array_size ); },
+		[&](int* array_) { DBJ_NANO_FREE( array_); }
+	);
+	// ----------------------------------------------------------
+	meta_driver("new [] / delete []",
+		[&](size_t sze_) { return new int[test_array_size]; },
+		[&](int* array_) { delete[] array_; }
+	);
+	// ----------------------------------------------------------
+	meta_driver("NED14",
+		[&](size_t sze_) { return (int*)::nedcalloc(test_array_size, sizeof(int)); },
+		[&](int* array_) { ::nedfree((void*)array_); }
+	);
+
 	// ----------------------------------------------------------
 #ifdef DBJ_TESTING_NED_POOL
 	// currently, I probably have no clue 
@@ -86,17 +98,10 @@ static void compare_mem_mechanisms() {
 	{
 		static nedpool* pool_ = nedcreatepool(2 * test_array_size, 0);
 
-		driver("NED14 Pool", [&] {
-			DBJ_REPEAT(test_loop_size) {
-				volatile int* array_ = (volatile int*)::nedpcalloc(pool_, test_array_size, sizeof(int));
-				DBJ_ASSERT(array_);
-				// do something so it is not opimized away
-				DBJ_REPEAT(test_array_size / 4) {
-					array_[dbj_repeat_counter_] = randomizer();
-				}
-				::nedpfree(pool_, (void*)array_);
-			}
-			});
+		meta_driver("NED14 Pool",
+			[&](size_t sze_) { return (int*)::nedpcalloc(pool_, test_array_size, sizeof(int)); },
+			[&](int* array_) { ::nedpfree(pool_, (void*)array_); }
+		);
 
 		neddestroypool(pool_);
 		// also not sure if this is necessary
@@ -115,7 +120,7 @@ static void meta_comparator()
 		compare_mem_mechanisms();
 	}
 	DBJ_PRINT(" ");
-	DBJ_PRINT("Comparing system and 3 other mem allocations ");
+	DBJ_PRINT("Comparing system and 5 other mem allocation mechanisms ");
 	DBJ_PRINT("Allocating/deallocating int * array[%d] with some random data filling", int(test_array_size));
 	DBJ_PRINT("Repeating the lot %d times", int(test_loop_size));
 	DBJ_PRINT(" ");

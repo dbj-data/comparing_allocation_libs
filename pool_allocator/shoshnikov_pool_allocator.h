@@ -6,7 +6,25 @@
 #define NDEBUG
 #endif // !_DEBUG and !DEBUG and NDEBUG
 
+#ifndef DBJ_NANO_ALLOC
+
+#define DBJ_NANO_ALLOC(T_,S_) \
+(T_*)::HeapAlloc(::GetProcessHeap(), 0, S_ * sizeof(T_))
+
+#define DBJ_NANO_FREE(P_) \
+::HeapFree(::GetProcessHeap(), 0, (void*)P_)
+
+#endif // DBJ_NANO_ALLOC
+
+/// do not mutliply, just use the S_
+#define DBJ_NANO_ALLOC_2(T_,S_) \
+(T_*)::HeapAlloc(::GetProcessHeap(), 0, S_)
+
 namespace dbj::nanolib {
+
+    /// DBJ ADDED WARNING
+    /// there is no free bellow 
+    /// blocks taken are not freed
 
 /**
  * Pool-allocator.
@@ -85,7 +103,7 @@ Chunk *PoolAllocator::allocateBlock(size_t chunkSize) {
   size_t blockSize = mChunksPerBlock * chunkSize;
 
   // The first chunk of the new block.
-  Chunk *blockBegin = reinterpret_cast<Chunk *>(malloc(blockSize));
+  Chunk *blockBegin = DBJ_NANO_ALLOC_2( Chunk, blockSize );
 
   // Once the block is allocated, we need to chain all
   // the chunks in this block:
@@ -255,10 +273,8 @@ delete [8] = 0x7ff85e402a60
 delete [9] = 0x7ff85e402a70
 
 new [0] = 0x7ff85e402a70
-
 */
-
 } // ns
 #endif // TEST_POOL_ALLOCATOR
-
+#undef DBJ_NANO_ALLOC_2
 #endif // SHOSHNIKOV_POOL_ALLOCATOR_INC

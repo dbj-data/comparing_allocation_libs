@@ -93,7 +93,6 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <Optimization>MaxSpeed</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalOptions>/kernel %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
@@ -112,7 +111,6 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <Optimization>MaxSpeed</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalOptions>/kernel %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
@@ -133,7 +131,6 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <Optimization>MaxSpeed</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalOptions>/kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -155,7 +152,6 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <Optimization>MaxSpeed</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalOptions>/kernel %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -168,6 +164,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="kalloc\kalloc.c" />
     <ClCompile Include="nedmalloc\nedmalloc.c" />
+    <ClCompile Include="nvwa\mem_pool_base.cpp" />
+    <ClCompile Include="nvwa\static_mem_pool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dbj--nanolib\nonstd\dbj_timer.h" />
@@ -176,6 +174,12 @@
     <ClInclude Include="common.h" />
     <ClInclude Include="nedmalloc\malloc.c.h" />
     <ClInclude Include="nedmalloc\nedmalloc.h" />
+    <ClInclude Include="nvwa\c++_features.h" />
+    <ClInclude Include="nvwa\class_level_lock.h" />
+    <ClInclude Include="nvwa\fast_mutex.h" />
+    <ClInclude Include="nvwa\fixed_mem_pool.h" />
+    <ClInclude Include="nvwa\mem_pool_base.h" />
+    <ClInclude Include="nvwa\static_mem_pool.h" />
     <ClInclude Include="pool_allocator\pool_allocator_instrumentation.h" />
     <ClInclude Include="pool_allocator\pool_allocator_sampling.h" />
     <ClInclude Include="pool_allocator\shoshnikov_pool_allocator.h" />
