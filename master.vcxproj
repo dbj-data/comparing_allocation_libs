@@ -188,6 +188,9 @@
     <ClInclude Include="pool_allocator\pool_allocator_sampling.h" />
     <ClInclude Include="pool_allocator\shoshnikov_pool_allocator.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
