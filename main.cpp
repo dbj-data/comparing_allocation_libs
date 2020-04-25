@@ -82,6 +82,8 @@ static void compare_mem_mechanisms() {
 	in this scenario it will allocate a block size = 4 * test_array_size
 	4 * 40 * 1000000 = just above 15MB
 	which is a lot of heap reserved by one function 
+	That makes it kind-of-a difficult for other to cohabit with it ...
+
 	I have changed it only to use HeapAlloc / HeapFree 
 	*/
 	{
