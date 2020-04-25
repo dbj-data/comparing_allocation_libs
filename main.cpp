@@ -134,7 +134,7 @@ static void meta_comparator()
 		compare_mem_mechanisms();
 	}
 	DBJ_PRINT(" ");
-	DBJ_PRINT("Comparing system and 5 other mem allocation mechanisms ");
+	DBJ_PRINT("Comparing system and few other mem allocation mechanisms ");
 	DBJ_PRINT("Allocating/deallocating int * array[%d] with some random data filling", int(test_array_size));
 	DBJ_PRINT("Repeating the lot %d times", int(test_loop_size));
 	DBJ_PRINT(" ");
@@ -143,11 +143,17 @@ static void meta_comparator()
 /// ---------------------------------------------------------------------
 /// this form ot TU Function registration works
 /// with clang 9, coming with VS 2019
+/// In English: inline lambda can not be used instead of meta_comparator
+/// It appears clang will remember it (I am using Array) and will
+/// execute it, but as an empty function.
 TUF_REG(meta_comparator);
 #endif // MEM_ALLOC_COMPARISONS
 
 /// ---------------------------------------------------------------------
 int main(int, char**)
 {
+	/// this might be executed easy with std::async
+	/// but that would an another unknown in the
+	/// already complex benchmarking equation
 	return dbj::tu::testing_system::execute();
 }

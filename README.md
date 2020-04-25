@@ -24,7 +24,7 @@ Thus using handles with standard API's requires a lot of to/from transformations
 
 ### We need to talk about Windows
 
-In my nanolib I have the following
+In my `nanolib` I have the following:
 
 ```cpp
 #define DBJ_NANO_CALLOC(T_,S_) \
@@ -36,4 +36,4 @@ In my nanolib I have the following
 #define DBJ_NANO_FREE(P_) \
 ::HeapFree(::GetProcessHeap(), 0, (void*)P_)
 ```
-It is measured many times over. Tried and tested.  On Windows there is no faster system allocation call but `HeapAlloc`. 
+It is measured many times over. Tried and tested.  On Windows there is no faster system allocation call but [`HeapAlloc`](https://docs.microsoft.com/en-us/windows/win32/api/heapapi/nf-heapapi-heapalloc). 
