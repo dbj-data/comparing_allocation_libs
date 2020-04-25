@@ -55,6 +55,15 @@ NVWA_NAMESPACE_BEGIN
 #   define _MEM_POOL_DEALLOCATE(_Ptr) ::operator delete(_Ptr)
 # endif
 
+// DBJ added -- stright from the innards of the dbj nanolib
+#ifdef WIN32
+#include "../dbj--nanolib/dbj_heap_alloc.h"
+#undef _MEM_POOL_ALLOCATE
+#undef _MEM_POOL_DEALLOCATE
+#define _MEM_POOL_ALLOCATE(_Sz)    HeapAlloc(GetProcessHeap(), 0, _Sz)
+#define _MEM_POOL_DEALLOCATE(_Ptr) HeapFree(GetProcessHeap(), 0, (void*)_Ptr)
+#endif // WIN32
+
 /**
  * @fn void mem_pool_base::recycle()
  *

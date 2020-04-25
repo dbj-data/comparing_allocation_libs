@@ -63,10 +63,14 @@ namespace dbj::nanolib {
 				}
 			}
 
+			/// this is where memory is actually freed
+			/// this is called when  block_registry host goes out of scope
+			/// and that host is pool allocator
 			~block_registry() {
 				for (int j = 0; j < max_blocks; ++j) {
 					if (blocks_[j] == nullptr) break;
-					free(blocks_[j]);
+					// free(blocks_[j]);
+					::HeapFree(::GetProcessHeap(), 0, (void*)blocks_[j]);
 #ifndef NDEBUG
 					blocks_[j] = nullptr;
 #endif
@@ -159,7 +163,8 @@ namespace dbj::nanolib {
 			/// Note! This is NOT a pointer to a const.
 			///
 			char* const start_address =
-				(char*)calloc(number_of_chunks_, chunk_allocation_size_);
+				//(char*)calloc(number_of_chunks_, chunk_allocation_size_);
+				(char*)::HeapAlloc(::GetProcessHeap(), 0, number_of_chunks_ * chunk_allocation_size_);
 
 			_ASSERTE(start_address);
 
