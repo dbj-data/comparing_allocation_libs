@@ -5,9 +5,10 @@
 
 - [Key Concepts](#key-concepts)
   - [The Road Map](#the-road-map)
+    - [Overloading new[] and delete[]](#overloading-new-and-delete)
 - [dbj_pools](#dbjpools)
 - [Why Blocks](#why-blocks)
-- [Engine User Point of View](#engine-user-point-of-view)
+- [User Code Point of View](#user-code-point-of-view)
 - [The Core Algorithm](#the-core-algorithm)
   - [Allocate](#allocate)
   - [Deallocate](#deallocate)
@@ -36,7 +37,7 @@ The typical scenario.
 |        |  uses        |            | --- deallocate -->|            |
 +--------+              +------------+                   +------------+
 ```
-That is example of two users (A and B) using memory pools two deliver memory blocks. One user one size, one pool. One per each user.
+That is example of two users (A and B) using memory pools to deliver memory blocks. One user one size, one pool. One per each user.
 
 Note: "User" in this instance means code that is using the memory pools.
 
@@ -62,8 +63,7 @@ Currently we repeat the whole mechanism per each thread. It is on the road-map t
   +----------------------------------------------------------------------------+
  
 ```
-Note: one thread can contain number of pools. The feasibility of such addition might be questionable. But it certainly can be done for 
-customers wishing to do so.
+Note: one thread can contain number of pools. The feasibility of such addition to this engine, might be questionable. But it certainly can be done for customers wishing to do so.
 
 In case of using shared libraries to carry pool allocators that might be mandatory.
 
@@ -72,22 +72,25 @@ In case of using shared libraries to carry pool allocators that might be mandato
 By C++ rules, class bound operators new[] and delete []  have this footprint
 ```cpp
   class ClassName {
+     static inline some_allocator( number_of_chunks_per_block, sizeof(ClassName)) ;
   public:
+
        . . .
 		static void* operator new [] (size_t size) {
           /*
-            size is byte size for the whole array to be allocated
-            it is not number of objects in a array requested
-            Thus we can not use the object pool for this class
-            optimized to manage and deliver one chunk per one call
+          no can do:
+          return some_allocator.allocate();
+
+            size argument is byte size for the whole array to be allocated
 
             We can compute the number of elements and allocate them 
             one by one here and return pointer to the array of them
-            But that will be unaceptably slow
+            But that will be unacceptably slow
 
-            Thus it is much more feasible just to use calloc here.
-            But that is not pool allocation then. 
+            Thus it is much more feasible just to use malloc here.
+            But that is not pool allocation  
           */
+         return malloc( size ) ;
 		}
 
 		static void operator delete [] (void* ptr) {
@@ -97,15 +100,17 @@ By C++ rules, class bound operators new[] and delete []  have this footprint
 
          it is best to leave it to the system free()
          */
-
-		}
+        free();
+    }
         . . .
   } ; // eof ClassName
 
 ```
 For the above problem it is possible to devise some solution based on
 [placement new](https://stackoverflow.com/questions/222557/what-uses-are-there-for-placement-new).
-But again that would make it ineviatbly (and noticeably) slower than calling `calloc` and `free`.
+But again that would make it inevitably (and noticeably) slower than calling `calloc` and `free`.
+
+Thus one can not feasibly provide fixed size pool allocator for array new and delete class overloads.
 
 So. Currently I am not even sure we should do this.
 
@@ -160,7 +165,7 @@ Using blocks we can minimize the number of expensive system calls to obtain actu
 
 The size of each block, has to be fine tuned per application. It is inevitably try -- measure -- try -- process.
 
-## Engine User Point of View
+## User Code Point of View
 
 The user code sees the pool as one contiguous list of free and allocated chunks. User code does not know about blocks.
 

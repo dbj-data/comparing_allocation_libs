@@ -1,10 +1,10 @@
 
 # DBJ Block Chunk<!-- omit in toc -->
-## Memory Pool Allocator<!-- omit in toc -->
+## Memory Pool Allocator Implementation<!-- omit in toc -->
 
 &copy; 2020 APR by dbj@dbj.org CC BY SA 4.0
 
-- [Why Memory Pool Allocator](#why-memory-pool-allocator)
+- [Recap: Why Memory Pool Allocator](#recap-why-memory-pool-allocator)
   - [Roadmap: Array allocation / deallocation](#roadmap-array-allocation--deallocation)
   - [Sanity](#sanity)
 - [The Core Concepts](#the-core-concepts)
@@ -16,7 +16,7 @@
   - [How to Align](#how-to-align)
 - [Caveat Emptor](#caveat-emptor)
 
-## Why Memory Pool Allocator
+## Recap: Why Memory Pool Allocator
 
 Memory Pool Allocator is feasible to be used in situations when memory is allocated and deallocated in equally sized pieces. 
 These pieces are called "memory chunks" or simply "chunks".
