@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common_concept.h"
+#include "../common.h"
 #include "../dbj--nanolib/dbj_heap_alloc.h"
 #include "../dbj_pool_allocator/dbj_shoshnikov_pool_allocator.h"
 

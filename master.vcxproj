@@ -82,6 +82,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -169,10 +170,13 @@
     <ClCompile Include="nvwa\static_mem_pool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="comparisons.h" />
     <ClInclude Include="dbj--nanolib\nonstd\dbj_timer.h" />
     <ClInclude Include="dbj_pool_allocator\dbj_shoshnikov_pool_allocator.h" />
     <ClInclude Include="dbj_pool_allocator\pool_allocator_instrumentation.h" />
     <ClInclude Include="dbj_pool_allocator\pool_allocator_sampling.h" />
+    <ClInclude Include="kalloc\comparisons.h" />
+    <ClInclude Include="kalloc\dbj_kalloc.h" />
     <ClInclude Include="kalloc\kalloc.h" />
     <ClInclude Include="kalloc\kvec.h" />
     <ClInclude Include="common.h" />
