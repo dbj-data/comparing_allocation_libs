@@ -7,9 +7,10 @@
 #include "nvwa/fixed_mem_pool.h"
 #include "nvwa/static_mem_pool.h"
 
-#include "pool_allocator/shoshnikov_pool_allocator.h"
+#include "shoshnikov_pool_allocator/shoshnikov_pool_allocator.h"
 #include "dbj_pool_allocator/dbj_shoshnikov_pool_allocator.h"
-/// #include "dbj_pool_allocator/pool_allocator_sampling.h"
+#include "dbj_pool_allocator/pool_allocator_sampling.h"
+#include "dbj_concept/is_it_feasible.h"
 /// ---------------------------------------------------------------------
 /// nedmalloc primary purpose is multithreaded applications
 /// it is also notoriously difficult to use in its raw form
@@ -96,8 +97,8 @@ static void compare_mem_mechanisms() {
 	}
 	// ----------------------------------------------------------
 	{
-		static dbj::nanolib::dbj_pool_allocator  dbj_pool(
-			dbj::nanolib::legal_block_size::_4
+		static dbj::shohnikov::dbj_pool_allocator  dbj_pool(
+			dbj::shohnikov::legal_block_size::_4
 			, test_array_size
 		);
 

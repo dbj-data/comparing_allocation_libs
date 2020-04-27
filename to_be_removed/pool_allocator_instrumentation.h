@@ -16,7 +16,7 @@
 // for humans to compare
 #define DBJFMT "%4X"
 
-namespace dbj::shohnikov {
+namespace dbj::nanolib {
 	struct pool_alloc_instrument final
 	{
 		using Chunk = dbj_pool_allocator::Chunk;

@@ -1,10 +1,9 @@
 #pragma once
+#define TEST_SHOSHNIKOV_POOL_ALLOCATOR_CLASS
+#ifdef TEST_SHOSHNIKOV_POOL_ALLOCATOR_CLASS
 
 #include "dbj_shoshnikov_pool_allocator.h"
 #include "pool_allocator_instrumentation.h"
-
-#define TEST_SHOSHNIKOV_POOL_ALLOCATOR_CLASS
-#ifdef TEST_SHOSHNIKOV_POOL_ALLOCATOR_CLASS
 
 // 4101 -- unreferenced local variable
 #pragma warning( push )
@@ -13,11 +12,9 @@
 
 namespace dbj_sampling {
 
-	using namespace dbj::shohnikov;
-
-	//using ::dbj::shoshnikov::dbj_pool_allocator;
-	//using ::dbj::shoshnikov::pool_alloc_instrument;
-	//using ::dbj::shoshnikov::legal_block_size;
+	using dbj::nanolib::dbj_pool_allocator;
+	using dbj::nanolib::pool_alloc_instrument;
+	using dbj::nanolib::legal_block_size;
 
 
 	//  chunk[0], chunk[1], chunk[2]
@@ -132,7 +129,7 @@ namespace dbj_sampling {
 		Object::report();
 		}
 
-    // TUF_REG( simple_test );
+    TUF_REG( simple_test );
 
 	/// -------------------------------------------------
 inline void array_aloc_test () {
@@ -151,10 +148,10 @@ inline void array_aloc_test () {
 
 		}
 
-		// TUF_REG(array_aloc_test);
+		TUF_REG(array_aloc_test);
 	/// -------------------------------------------------
 
-	TU_REGISTER_NOT([] {
+	TU_REGISTER([] {
 		// allocator block size is 3 for Object
 		Object* a{};
 
@@ -177,7 +174,7 @@ inline void array_aloc_test () {
 		});
 
 	/// -------------------------------------------------
-	TU_REGISTER_NOT ([] {
+	TU_REGISTER([] {
 
 		// allocator block size is 3 for Object
 		Object* a, * b, * c, * d;

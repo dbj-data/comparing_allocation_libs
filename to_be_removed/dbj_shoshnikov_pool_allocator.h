@@ -1,5 +1,5 @@
-#ifndef DBJ_SHOSHNIKOV_POOL_INC
-#define DBJ_SHOSHNIKOV_POOL_INC
+#ifndef DBJ_SHOSHNIKOV_POOL_ALLOCATOR_INC
+#define DBJ_SHOSHNIKOV_POOL_ALLOCATOR_INC
 
 #define POOL_ALLOC_INSTRUMENTATION 1
 
@@ -9,24 +9,21 @@
 #define NDEBUG
 #endif // !_DEBUG and !DEBUG and NDEBUG
 
-namespace dbj::shohnikov {
+namespace dbj::nanolib {
 
 	// DBJ added
 	enum class legal_block_size : size_t {
-		_4 = 4, _8 = 8, _16 = 16, _32 = 32, _64 = 64, _128 = 128, _256 = 256, _512 = 512, _1024 = 1024,
-		_2048 = 2048, _4096 = 4096, _8192 = 8192, _16384 = 16384, _32768 = 32768, _65536 = 65536
+		_4 = 4, _8 = 8, _16 = 16, _32 = 32, _64 = 64, _128 = 128
 	};
 
 	// DBJ added sanity constants
 	constexpr static auto max_number_of_blocks{ 0xFF };
 
-	/**
+   /**
 	* Machine word size. Depending on the architecture,
 	* can be 4 or 8 bytes.
+      http://dmitrysoshnikov.com/compilers/writing-a-memory-allocator/#memory-alignment 
 	*/
-
-	/* http://dmitrysoshnikov.com/compilers/writing-a-memory-allocator/#memory-alignment */
-
 	using word_t = intptr_t;
 
 	constexpr size_t align(word_t n) {
@@ -38,9 +35,9 @@ namespace dbj::shohnikov {
 	namespace chunky {
 
 		/// ------------------------------------------------------------------------
-/// pool has to own it, called from pools destructor
-/// why this? std::vector is overkill
-/// NOTE: in here there is no knowledge of Chunk
+		/// pool has to own it, called from pools destructor
+		/// why this? std::vector is overkill
+		/// NOTE: in here there is no knowledge of Chunk
 		class block_registry final {
 			constexpr static int max_blocks{ 0xFF };
 			char* blocks_[max_blocks]{ 0 };
@@ -52,7 +49,6 @@ namespace dbj::shohnikov {
 			/// return index of the block appended
 			int append(char* const new_block_)
 			{
-				_ASSERT(level_ < max_blocks );
 				blocks_[level_] = new_block_;
 				level_ += 1;
 				return level_ - 1;
@@ -67,10 +63,14 @@ namespace dbj::shohnikov {
 				}
 			}
 
+			/// this is where memory is actually freed
+			/// this is called when  block_registry host goes out of scope
+			/// and that host is pool allocator
 			~block_registry() {
 				for (int j = 0; j < max_blocks; ++j) {
 					if (blocks_[j] == nullptr) break;
-					DBJ_NANO_FREE(blocks_[j]);
+					// free(blocks_[j]);
+					::HeapFree(::GetProcessHeap(), 0, (void*)blocks_[j]);
 #ifndef NDEBUG
 					blocks_[j] = nullptr;
 #endif
@@ -108,8 +108,8 @@ namespace dbj::shohnikov {
 		* Returns total allocation size, reserving in addition the space for
 		* the Chunk structure (object header + first data word).
 		*
-    	* Since the `word_t data[1]` already allocates one word inside the Block
-	    * structure, we decrease it from the size request: if a user allocates
+		* Since the `word_t data[1]` already allocates one word inside the Block
+		* structure, we decrease it from the size request: if a user allocates
 		* only one word, it's fully in the Block struct.
 		*/
 		constexpr size_t chunk_allocation_size(unaligned_size size)
@@ -124,16 +124,7 @@ namespace dbj::shohnikov {
 
 		static_assert(sizeof(Chunk) == chunk_struct_size_);
 
-		/*
-		
-		Apparently replaced with chunk->data
-
-		inline char* data_from_chunk(Chunk* chunk) {
-			return (char*)(chunk + sizeof(Chunk) - sizeof(std::declval<Chunk>().data) );
-		}
-		*/
-
-		Chunk* chunk_from_data (char* data) {
+		Chunk* chunk_from_data(char* data) {
 			return (Chunk*)((char*)data + sizeof(std::declval<Chunk>().data) -
 				sizeof(Chunk));
 		}
@@ -161,7 +152,7 @@ namespace dbj::shohnikov {
 			const size_t number_of_chunks_ = size_t(number_of_chunks_arg_);
 			const size_t chunk_allocation_size_ = chunk_allocation_size(chunk_size_arg_);
 #ifndef NDEBUG
-			const size_t block_size_ = number_of_chunks_ * chunk_allocation_size_ ;
+			const size_t block_size_ = number_of_chunks_ * chunk_allocation_size_;
 			_ASSERTE(block_size_ > 0);
 #endif
 
@@ -172,13 +163,10 @@ namespace dbj::shohnikov {
 			/// Note! This is NOT a pointer to a const.
 			///
 			char* const start_address =
-				DBJ_NANO_MALLOC( char, number_of_chunks_ * chunk_allocation_size_);
+				//(char*)calloc(number_of_chunks_, chunk_allocation_size_);
+				(char*)::HeapAlloc(::GetProcessHeap(), 0, number_of_chunks_ * chunk_allocation_size_);
 
 			_ASSERTE(start_address);
-
-#ifndef NDEBUG
-			memset(start_address,0, number_of_chunks_ * chunk_allocation_size_ );
-#endif
 
 			registry_.append(start_address);
 
@@ -191,46 +179,21 @@ namespace dbj::shohnikov {
 			for (size_t i = 0; i < number_of_chunks_; ++i)
 			{
 				chunk = reinterpret_cast<Chunk*>(chunk_walker);
-				DBJ_ASSERT( chunk );
 				chunk->in_use = false; // DBJ added
 				chunk->next = reinterpret_cast<Chunk*>(chunk_walker + chunk_allocation_size_);
 				chunk_walker = chunk_walker + chunk_allocation_size_;
 			}
 			// ! the last chunk next field
 			chunk->next = nullptr;
-			return  retval_ ;
+			return  retval_;
 		}
 
 	} // chunky
 
 	/**
-	 * Pool-allocator.
-	 *
-	 * Details: http://dmitrysoshnikov.com/compilers/writing-a-pool-allocator/
-	 *
-	 * Allocates a larger block using `malloc`.
-	 *
-	 * Splits the large block into smaller chunks
-	 * of equal size.
-	 *
-	 * Uses bump-allocated per chunk.
-	 *
-	 * by Dmitry Soshnikov <dmitry.soshnikov@gmail.com>
-	 * MIT Style License, 2019
-
-	  * The allocator class.
-	  *
-	  * Features:
-	  *
-	  *   - Parametrized by number of chunks per block
-	  *   - Keeps track of the allocation pointer
-	  *   - Bump-allocates chunks
-	  *   - Requests a new larger block when needed
-
-	  http://dmitrysoshnikov.com/compilers/writing-a-pool-allocator/
-
-	  *
-	  */
+	 * Based on
+	 * http://dmitrysoshnikov.com/compilers/writing-a-pool-allocator/
+	 */
 	struct dbj_pool_allocator final
 	{
 #ifdef POOL_ALLOC_INSTRUMENTATION
@@ -245,10 +208,10 @@ namespace dbj::shohnikov {
 			noexcept
 			: chunks_per_block_(chunksPerBlock)
 			, chunk_size_(
-				unaligned_size{ 
-					( align(chunk_size_arg) < chunky::chunk_struct_size_ 
+				unaligned_size{
+					(align(chunk_size_arg) < chunky::chunk_struct_size_
 					  ? chunky::chunk_struct_size_
-				      : chunk_size_arg )
+					  : chunk_size_arg)
 				}
 			)
 			, next_free_chunk_(nullptr)
@@ -268,17 +231,10 @@ namespace dbj::shohnikov {
 		dbj_pool_allocator& operator = (dbj_pool_allocator&&) = delete;
 
 		/**
-		 * Returns the first free chunk in the block.
-		 *
-		 * If there are no chunks left in the block,
-		 * allocates a new block.
-		 *
 		 * DBJ: all block must contain chunks of the same size
 		 *      chunk size is constructor argument
 		 */
 		void* allocate() {
-			// No chunks left in the current block, or no any block
-			// exists yet. Allocate a new one, passing the chunk size:
 			if (next_free_chunk_ == nullptr)
 			{
 				next_free_chunk_ = chunky::allocateBlock(
@@ -286,13 +242,8 @@ namespace dbj::shohnikov {
 				);
 			}
 
-			// The return value is the current position of
-			// the allocation pointer:
 			Chunk* allocated_chunk = next_free_chunk_;
 
-			// Advance (bump) the allocation pointer to the next chunk.
-			// When no chunks left, the `next_free_chunk_` will be set to `nullptr`, and
-			// this will cause allocation of a new block on the next request:
 			next_free_chunk_ = next_free_chunk_->next;
 
 			// DBJ added
@@ -301,12 +252,9 @@ namespace dbj::shohnikov {
 			// take it out from a free list
 			allocated_chunk->next = nullptr;
 
-			return allocated_chunk->data ;
+			return allocated_chunk->data;
 		}
 
-		/**
-		 * Puts the chunk into the front of the chunks list.
-		 */
 		void deallocate(void* chunk_data_)
 		{
 			Chunk* chunk = chunky::chunk_from_data((char*)chunk_data_);
@@ -315,15 +263,9 @@ namespace dbj::shohnikov {
 			_ASSERTE(true == chunk->in_use);
 			// and the next must have been set to null
 			_ASSERTE(nullptr == chunk->next);
-
 			// DBJ added
 			chunk->in_use = false;
-
-			// The freed chunk's next pointer points to the
-			// current allocation pointer:
 			chunk->next = next_free_chunk_;
-			// And the allocation pointer is moved backwards, and
-			// is set to the returned (now free) chunk:
 			next_free_chunk_ = chunk;
 		}
 
@@ -344,7 +286,6 @@ namespace dbj::shohnikov {
 	private:
 
 		/**
-		 * Number of chunks per larger block.
 		 DBJ made it const
 		 */
 		const legal_block_size chunks_per_block_{};
@@ -352,12 +293,9 @@ namespace dbj::shohnikov {
 		DBJ added
 		*/
 		const unaligned_size chunk_size_{};
-		/**
-		 * Allocation pointer.
-		 */
 		Chunk* next_free_chunk_{ nullptr };
-	}; // dbj_pool_allocators
+	}; // pool_allocators
 	// -----------------------------------------------------------
-} // dbj::shohnikov
+} // dbj::nanolib
 
-#endif // DBJ_SHOSHNIKOV_POOL_INC
+#endif // DBJ_SHOSHNIKOV_POOL_ALLOCATOR_INC
