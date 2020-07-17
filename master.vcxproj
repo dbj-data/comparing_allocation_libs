@@ -163,6 +163,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dbj--nanolib\utf\wcwidth.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="kalloc\kalloc.c" />
     <ClCompile Include="nedmalloc\nedmalloc.c" />
@@ -171,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="comparisons.h" />
+    <ClInclude Include="dbj--nanolib\dbj++debug.h" />
     <ClInclude Include="dbj--nanolib\nonstd\dbj_timer.h" />
     <ClInclude Include="dbj_pool_allocator\dbj_shoshnikov_pool_allocator.h" />
     <ClInclude Include="dbj_pool_allocator\pool_allocator_instrumentation.h" />
@@ -180,6 +182,10 @@
     <ClInclude Include="kalloc\kalloc.h" />
     <ClInclude Include="kalloc\kvec.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="dbj--nanolib\utf\dbj_utf_conversions.h" />
+    <ClInclude Include="dbj--nanolib\utf\dbj_utf_cpp.h" />
+    <ClInclude Include="dbj--nanolib\utf\dbj_utf_utils.h" />
+    <ClInclude Include="dbj--nanolib\utf\dbj_wcwidth.h" />
     <ClInclude Include="nedmalloc\malloc.c.h" />
     <ClInclude Include="nedmalloc\nedmalloc.h" />
     <ClInclude Include="nvwa\c++_features.h" />
@@ -193,6 +199,7 @@
     <ClInclude Include="pool_allocator\shoshnikov_pool_allocator.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="dbj--nanolib\utf\readme.md" />
     <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
