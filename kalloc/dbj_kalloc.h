@@ -15,7 +15,7 @@ extern "C" {
 	inline void* k_memory_()
 	{
 		static void* k_memory_single_ = km_init();
-		static int rez = atexit(on_exit_release_kmem_pointer);
+		/*static int rez =*/ atexit(on_exit_release_kmem_pointer);
 		return k_memory_single_;
 	}
 

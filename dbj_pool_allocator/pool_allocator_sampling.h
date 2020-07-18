@@ -31,7 +31,7 @@ namespace dbj_sampling {
 	class Object final {
 
 		// Object data
-		uint64_t data[0xFF]{ 42 };
+		uint64_t data_[0xFF]{ 42 };
 
 		/// DBJ added
 		/// users are unaware of the pool allocator used
@@ -44,6 +44,8 @@ namespace dbj_sampling {
 			return alokator;
 		}
 	public :
+		Object() { data_[0xFF - 1] = 0; }
+
 		static void report()
 		{
 			pool_alloc_instrument::report( Object::allocator());

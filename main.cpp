@@ -8,28 +8,43 @@
 #include "dbj--nanolib/dbj++debug.h"
 #include "dbj--nanolib/utf/dbj_utf_cpp.h"
 
+// WIN10 cosnole setup required
+// codepage: 65001
+// font: NSimSun
+// 
 // WIN c++ char32_t string literal
 #define HIRAGANA_SL U"平仮名"
 
 static void test_dbj_debug()
 {
-	// 1. convert 32 to utf 16
 	dbj::utf::utf16_string utf16_(
 		dbj::utf::utf32_string(HIRAGANA_SL)
 	);
-	wprintf(L"\n%s\n", utf16_.get() );
+	wprintf(L"\n%s\n", utf16_.get());
 
 	dbj::utf::utf8_string utf8_(
 		dbj::utf::utf32_string(HIRAGANA_SL)
 	);
-	wprintf(L"\n%S\n", utf8_.get() );
+	wprintf(L"\n%S\n", utf8_.get());
 
-	constexpr auto arb = dbj::make_arr_buffer(U"平仮名") ;
+	constexpr auto arb = dbj::nanolib::make_arr_buffer(U"平仮名");
 
-	DBJ_SXT( dbj::make_arr_buffer(U"平仮名"));
-	DBJ_SX(  dbj::make_arr_buffer(U"平仮名").data());
+	(void)arb;
 
-	auto buf = dbj::nanolib::v_buffer::make(dbj::make_arr_buffer(U"平仮名").data());
+	DBJ_SXT(dbj::nanolib::make_arr_buffer(U"平仮名"));
+	DBJ_SX(
+		dbj::utf::utf8_string(
+			dbj::utf::utf32_string(
+				dbj::nanolib::make_arr_buffer(U"平仮名").data()
+			)
+		).get()
+	);
+
+	using bufy = typename dbj::nanolib::v_buffer::type ;
+
+	DBJ_SX("make char32_t string literal into std array buffer, then into dbj buffer then print it");
+
+	DBJ_SX( bufy::make(dbj::nanolib::make_arr_buffer(U"平仮名").data()).data() );
 
 }
 /// ---------------------------------------------------------------------

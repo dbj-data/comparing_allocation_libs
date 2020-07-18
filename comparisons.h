@@ -42,7 +42,8 @@ namespace comparisons {
 			min, max, (min + max) / 2);
 	}
 	/// ---------------------------------------------------------------------
-	inline auto meta_driver = [&](dbj::collector& collector_, auto aloka, auto dealoka) {
+	inline auto meta_driver = [ ](dbj::collector& collector_, auto aloka, auto dealoka) 
+	{
 		dbj::driver(collector_, [&] {
 			DBJ_REPEAT(test_loop_size) {
 				int* array_ = aloka(test_array_size);
