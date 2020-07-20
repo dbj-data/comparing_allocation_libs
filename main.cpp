@@ -7,14 +7,20 @@
 /// ---------------------------------------------------------------------
 #include "dbj--nanolib/dbj++debug.h"
 #include "dbj--nanolib/utf/dbj_utf_cpp.h"
+#include "dbj_ss/dbj_string_storage.h"
 
-// WIN10 cosnole setup required
+// WIN c++ char32_t string literal
+#define HIRAGANA_SL U"平仮名"
+//
+// To see the above
+// WIN10 console setup required
 // codepage: 65001
 // font: NSimSun
 // 
-// WIN c++ char32_t string literal
-#define HIRAGANA_SL U"平仮名"
 
+#if defined(__clang__) && defined(_MSC_VER)
+__attribute__((const))
+#endif
 static void test_dbj_debug()
 {
 	dbj::utf::utf16_string utf16_(
@@ -50,9 +56,18 @@ static void test_dbj_debug()
 /// ---------------------------------------------------------------------
 int main(int, char**)
 {
-	test_dbj_debug();
-	/// this might be executed easy with std::async
+	auto ss_ = dbj_sl_storage();
+
+	size_t ss_index = sl_storage_store(ss_, "JUPI!");
+
+	DBJ_SX(sl_storage_get(ss_, ss_index) );
+
+	//  test_dbj_debug();
+
+	/// bellow might be executed easy with std::async
 	/// but that would add yet another unknown in the
 	/// already complex benchmarking equation
-	// return dbj::tu::testing_system::execute();
+	/// return dbj::tu::testing_system::execute();
+
+	return EXIT_SUCCESS;
 }
