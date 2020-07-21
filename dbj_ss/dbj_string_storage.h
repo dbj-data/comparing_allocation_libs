@@ -22,6 +22,21 @@ const char * string_ = sl_storage_get( index ) ;
 so what is good about this?
 index is unique, thus there is no cache search on get
 there is no heap usage
+simple array can be used for storage
+
+Alternative is hash table ... which in essence is a dynamic data structure
+actually a map where key is the hash and value is a string from which the hash was computed
+and that is certsinly noy trivial simple and fast as the code bellow is
+
+
+And what is bad about this:
+
+Storage capacity is limited at compile time
+
+Caveat Emptor
+the actual string is made elsewhere not here. So beware of dangling pointers.
+String pool is warmly recommended...
+
 */
 
 #include <assert.h>
@@ -32,6 +47,8 @@ extern "C" {
 #endif
 
 #define DBJ_STRING_STORAGE_MAX_LEVEL 0xFF 
+
+#define SL_STORAGE_CAPACITY (size_t)(DBJ_STRING_STORAGE_MAX_LEVEL - 1)
 
     static dbj_lock* dbj_padlock_holder_for_ss() 
     {
@@ -55,7 +72,7 @@ typedef struct sl_storage_struct
 } sl_storage_struct ;
 
 /* single instance */
-static sl_storage_struct * dbj_sl_storage () {
+static inline sl_storage_struct * dbj_sl_storage () {
 
 static sl_storage_struct sl_storage_ = 
 {
@@ -67,16 +84,10 @@ static sl_storage_struct sl_storage_ =
         return & sl_storage_;
 }
 
-
-static inline size_t sl_storage_capacity()
-{
-    return DBJ_STRING_STORAGE_MAX_LEVEL - 1;
-}
-
 static inline size_t sl_storage_left(sl_storage_struct * sl_storage )
 {
     assert(sl_storage);
-    return sl_storage_capacity() - sl_storage->level ;
+    return SL_STORAGE_CAPACITY - sl_storage->level ;
 }
 
 // asserts on overflow
