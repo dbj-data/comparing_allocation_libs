@@ -181,8 +181,6 @@
     <ClInclude Include="dbj_pool_allocator\dbj_shoshnikov_pool_allocator.h" />
     <ClInclude Include="dbj_pool_allocator\pool_allocator_instrumentation.h" />
     <ClInclude Include="dbj_pool_allocator\pool_allocator_sampling.h" />
-    <ClInclude Include="dbj_ss\dbj_string_storage.h" />
-    <ClInclude Include="dbj_ss\dbj_simplelock.h" />
     <ClInclude Include="kalloc\comparisons.h" />
     <ClInclude Include="kalloc\dbj_kalloc.h" />
     <ClInclude Include="kalloc\kalloc.h" />
