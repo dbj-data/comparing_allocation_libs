@@ -185,7 +185,7 @@ namespace comparisons {
 	}
 
 	/// ---------------------------------------------------------------------
-	void meta_comparator()
+	inline void meta_comparator()
 	{
 		DBJ_PRINT(" ");
 		DBJ_PRINT("Comparing system and few other mem allocation mechanisms ");
