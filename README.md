@@ -1,3 +1,10 @@
+# SUPERSEDED 
+
+## Please goto https://github.com/dbj-data/dbj-bench 
+
+And look into zallocators folder
+
+
 # comparing_allocation_libs
 
 > &copy; 2020 APR by dbj@dbj.org
